@@ -183,13 +183,13 @@ html, body {
 .hex-button:hover {
     background: var(--text-white);
     color: var(--bg-black);
-    transform: translateX(5px) translateY(-2px);
     box-shadow: -5px 5px 0 var(--text-white);
+    /* Don't override transform - keep the position-specific transforms */
 }
 
 .hex-button:active {
-    transform: translateX(2px) translateY(1px);
-    box-shadow: -2px 2px 0 var(--text-white);
+    /* Don't override transform on click - it breaks positioning */
+    box-shadow: -3px 3px 0 var(--text-white);
 }
 
 /* Glitch effect on hover */
