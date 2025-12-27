@@ -88,7 +88,7 @@ class DecayEffect {
         this.targetPage = null;
         this.startTime = 0;
         this.buttonFallDuration = 2000; // 2 seconds for buttons to fall
-        this.whiteScreenDuration = 2000; // 2 seconds white screen
+        this.whiteLayerDuration = 1000; // 1 second for white layer sweep
         this.buildDuration = 2000; // 2 seconds for rebuild
         this.buttons = [];
         this.canvas = null;
@@ -192,20 +192,44 @@ class DecayEffect {
             
             requestAnimationFrame(() => this.animate());
         }
-        // PHASE 2: WHITE SCREEN (2-4 seconds)
-        else if (elapsed < this.buttonFallDuration + this.whiteScreenDuration) {
-            // Fill with white
-            this.ctx.fillStyle = '#FFFFFF';
+        // PHASE 2: WHITE LAYER SWEEP (2-3 seconds)
+        else if (elapsed < this.buttonFallDuration + this.whiteLayerDuration) {
+            const whiteElapsed = elapsed - this.buttonFallDuration;
+            const whiteProgress = whiteElapsed / this.whiteLayerDuration;
+            
+            // Start with black background
+            this.ctx.fillStyle = '#000000';
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             
+            // Build white chunks from bottom (same style as black rebuild)
+            const chunkSize = 40;
+            const cols = Math.ceil(this.canvas.width / chunkSize);
+            const rows = Math.ceil(this.canvas.height / chunkSize);
+            
+            for (let y = rows - 1; y >= 0; y--) {
+                for (let x = 0; x < cols; x++) {
+                    const chunkY = y * chunkSize;
+                    const distanceFromBottom = this.canvas.height - chunkY;
+                    const maxDistance = this.canvas.height;
+                    const chunkProgress = Math.max(0, (whiteProgress * maxDistance - distanceFromBottom) / chunkSize);
+                    
+                    if (chunkProgress > 0) {
+                        this.ctx.fillStyle = '#FFFFFF';
+                        this.ctx.globalAlpha = Math.min(1, chunkProgress);
+                        this.ctx.fillRect(x * chunkSize, chunkY, chunkSize, chunkSize);
+                    }
+                }
+            }
+            
+            this.ctx.globalAlpha = 1;
             requestAnimationFrame(() => this.animate());
         }
-        // PHASE 3: BUILD UP BLACK FROM BOTTOM (4-6 seconds)
-        else if (elapsed < this.buttonFallDuration + this.whiteScreenDuration + this.buildDuration) {
-            const buildElapsed = elapsed - (this.buttonFallDuration + this.whiteScreenDuration);
+        // PHASE 3: BUILD UP BLACK FROM BOTTOM (3-5 seconds)
+        else if (elapsed < this.buttonFallDuration + this.whiteLayerDuration + this.buildDuration) {
+            const buildElapsed = elapsed - (this.buttonFallDuration + this.whiteLayerDuration);
             const buildProgress = buildElapsed / this.buildDuration;
             
-            // Fill with white first
+            // Fill with white first (from previous phase)
             this.ctx.fillStyle = '#FFFFFF';
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             
