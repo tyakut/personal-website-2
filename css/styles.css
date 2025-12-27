@@ -1,0 +1,409 @@
+/* BRUTALIST STYLES */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg-black: #000000;
+    --text-white: #FFFFFF;
+    --cursor-brown: #5D4037;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg-black);
+    color: var(--text-white);
+    font-family: Helvetica, Arial, sans-serif;
+    /* cursor: none; */
+}
+
+/* Custom Cursor - Plus Sign - DISABLED */
+/*
+.cursor {
+    position: fixed;
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+    z-index: 99999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s ease;
+    left: 0;
+    top: 0;
+    display: block;
+    visibility: visible;
+    opacity: 1;
+}
+
+.cursor::before,
+.cursor::after {
+    content: '';
+    position: absolute;
+    background: var(--cursor-brown);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.cursor::before {
+    width: 2px;
+    height: 20px;
+}
+
+.cursor::after {
+    width: 20px;
+    height: 2px;
+}
+*/
+
+/* Cursor Coordinates */
+.cursor-coords {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    color: var(--cursor-brown);
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    letter-spacing: 1px;
+    z-index: 10001;
+    pointer-events: none;
+}
+
+/* Decay Canvas */
+#decay-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0;
+}
+
+/* Page Container */
+.page-container {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+.page {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.page.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* Home Page - Plus Sign Navigation */
+.hexagon-container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.hex-nav {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hex-button[data-position="north"] {
+    position: absolute;
+    top: calc(50% - 100px);
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.hex-button[data-position="south"] {
+    position: absolute;
+    bottom: calc(50% - 100px);
+    left: 50%;
+    transform: translate(-50%, 50%);
+}
+
+.hex-button[data-position="east"] {
+    position: absolute;
+    top: 50%;
+    right: calc(50% - 100px);
+    transform: translate(50%, -50%);
+}
+
+.hex-button[data-position="west"] {
+    position: absolute;
+    top: 50%;
+    left: calc(50% - 100px);
+    transform: translate(-50%, -50%);
+}
+
+/* Hexagonal Button Layout */
+.hex-button {
+    background: transparent;
+    border: 2px solid var(--text-white);
+    color: var(--text-white);
+    padding: 15px 40px;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    font-weight: normal;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    /* cursor: none; */
+    position: relative;
+    transition: all 0.2s ease;
+    outline: none;
+    min-width: 200px;
+    z-index: 10;
+}
+
+.hex-button.falling {
+    transition: none;
+    pointer-events: none;
+}
+
+.hex-button:hover {
+    background: var(--text-white);
+    color: var(--bg-black);
+    transform: translateX(5px) translateY(-2px);
+    box-shadow: -5px 5px 0 var(--text-white);
+}
+
+.hex-button:active {
+    transform: translateX(2px) translateY(1px);
+    box-shadow: -2px 2px 0 var(--text-white);
+}
+
+/* Glitch effect on hover */
+.hex-button:hover::before {
+    content: attr(data-page);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--text-white);
+    color: var(--bg-black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: glitch 0.3s infinite;
+}
+
+@keyframes glitch {
+    0%, 100% {
+        transform: translate(0);
+    }
+    20% {
+        transform: translate(-2px, 2px);
+    }
+    40% {
+        transform: translate(-2px, -2px);
+    }
+    60% {
+        transform: translate(2px, 2px);
+    }
+    80% {
+        transform: translate(2px, -2px);
+    }
+}
+
+/* Content Pages */
+.content-page {
+    width: 100%;
+    height: 100%;
+    padding: 60px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.back-button {
+    background: transparent;
+    border: 2px solid var(--text-white);
+    color: var(--text-white);
+    padding: 10px 20px;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    /* cursor: none; */
+    margin-bottom: 40px;
+    align-self: flex-start;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.back-button:hover {
+    background: var(--text-white);
+    color: var(--bg-black);
+    transform: translateX(-3px);
+}
+
+.back-button.falling {
+    transition: none;
+    pointer-events: none;
+}
+
+.content-page h1 {
+    font-size: 48px;
+    font-weight: normal;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    margin-bottom: 40px;
+}
+
+.content-block {
+    max-width: 800px;
+    line-height: 1.6;
+}
+
+.content-block p {
+    font-size: 16px;
+    margin-bottom: 20px;
+    line-height: 1.8;
+}
+
+.content-block h2 {
+    font-size: 24px;
+    font-weight: normal;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
+.project-item {
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--text-white);
+}
+
+.project-item:last-child {
+    border-bottom: none;
+}
+
+/* Contact Form */
+#contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 600px;
+}
+
+#contact-form input,
+#contact-form textarea {
+    background: transparent;
+    border: 2px solid var(--text-white);
+    color: var(--text-white);
+    padding: 15px;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+#contact-form input::placeholder,
+#contact-form textarea::placeholder {
+    color: var(--text-white);
+    opacity: 0.7;
+}
+
+#contact-form input:focus,
+#contact-form textarea:focus {
+    background: var(--text-white);
+    color: var(--bg-black);
+}
+
+#contact-form input:focus::placeholder,
+#contact-form textarea:focus::placeholder {
+    color: var(--bg-black);
+    opacity: 0.5;
+}
+
+#contact-form button {
+    background: transparent;
+    border: 2px solid var(--text-white);
+    color: var(--text-white);
+    padding: 15px 40px;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    /* cursor: none; */
+    align-self: flex-start;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+#contact-form button:hover {
+    background: var(--text-white);
+    color: var(--bg-black);
+    transform: translateX(3px) translateY(-2px);
+    box-shadow: 3px 3px 0 var(--text-white);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-black);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--text-white);
+    border: 2px solid var(--bg-black);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--cursor-brown);
+}
+
+/* Decay Animation Classes */
+.decaying {
+    pointer-events: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hexagon-main {
+        width: 300px;
+        height: 300px;
+    }
+    
+    .hex-button {
+        min-width: 180px;
+        padding: 12px 30px;
+        font-size: 14px;
+    }
+    
+    .content-page {
+        padding: 40px 20px;
+    }
+    
+    .content-page h1 {
+        font-size: 36px;
+    }
+}

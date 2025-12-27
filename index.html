@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Brutalist Personal Website">
+    <title>BRUTAL</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    
+    <!-- Cursor Coordinates -->
+    <div class="cursor-coords" id="cursor-coords">(0, 0)</div>
+    
+    <!-- Decay Canvas Overlay -->
+    <canvas id="decay-canvas"></canvas>
+    
+    <!-- Main Container -->
+    <div class="page-container" id="page-container">
+        <!-- Home Page -->
+        <div class="page active" id="home-page">
+            <div class="hexagon-container">
+                <div class="hex-nav">
+                    <button class="hex-button" data-page="about" data-position="north">ABOUT</button>
+                    <button class="hex-button" data-page="contact" data-position="south">CONTACT</button>
+                    <button class="hex-button" data-page="resume" data-position="east">RESUME</button>
+                    <button class="hex-button" data-page="projects" data-position="west">PROJECTS</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Page -->
+        <div class="page" id="about-page">
+            <div class="content-page">
+                <button class="back-button" data-page="home">← BACK</button>
+                <h1>ABOUT</h1>
+                <div class="content-block">
+                    <p>Raw. Unfiltered. Brutal.</p>
+                    <p>This is where you tell your story without polish.</p>
+                    <p>Replace this text with your actual content.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resume Page -->
+        <div class="page" id="resume-page">
+            <div class="content-page">
+                <button class="back-button" data-page="home">← BACK</button>
+                <h1>RESUME</h1>
+                <div class="content-block">
+                    <h2>EXPERIENCE</h2>
+                    <p>Your experience here.</p>
+                    <h2>EDUCATION</h2>
+                    <p>Your education here.</p>
+                    <h2>SKILLS</h2>
+                    <p>Your skills here.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Projects Page -->
+        <div class="page" id="projects-page">
+            <div class="content-page">
+                <button class="back-button" data-page="home">← BACK</button>
+                <h1>PROJECTS</h1>
+                <div class="content-block">
+                    <div class="project-item">
+                        <h2>PROJECT 1</h2>
+                        <p>Description of your project.</p>
+                    </div>
+                    <div class="project-item">
+                        <h2>PROJECT 2</h2>
+                        <p>Description of your project.</p>
+                    </div>
+                    <div class="project-item">
+                        <h2>PROJECT 3</h2>
+                        <p>Description of your project.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Page -->
+        <div class="page" id="contact-page">
+            <div class="content-page">
+                <button class="back-button" data-page="home">← BACK</button>
+                <h1>CONTACT</h1>
+                <div class="content-block">
+                    <form id="contact-form">
+                        <input type="text" placeholder="NAME" required>
+                        <input type="email" placeholder="EMAIL" required>
+                        <textarea placeholder="MESSAGE" rows="5" required></textarea>
+                        <button type="submit">SEND</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
