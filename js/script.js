@@ -88,7 +88,7 @@ class DecayEffect {
         this.targetPage = null;
         this.startTime = 0;
         this.buttonFallDuration = 2000; // 2 seconds for buttons to fall
-        this.flickerDuration = 1500; // 1.5 seconds for flicker sequence
+        this.whiteScreenDuration = 2000; // 2 seconds white screen
         this.buildDuration = 2000; // 2 seconds for rebuild
         this.buttons = [];
         this.canvas = null;
@@ -119,15 +119,39 @@ class DecayEffect {
         this.canvas.style.opacity = '1';
         this.canvas.style.zIndex = '10000';
         
-        // Hide current page immediately
+        // Capture buttons from current page (home page hex buttons or back buttons)
         const currentPage = document.querySelector('.page.active');
+        if (currentPage) {
+            // Get hex buttons from home page
+            const hexButtons = currentPage.querySelectorAll('.hex-button');
+            // Get back buttons from content pages
+            const backButtons = currentPage.querySelectorAll('.back-button');
+            // Combine both
+            const allButtons = [...hexButtons, ...backButtons];
+            
+            allButtons.forEach((button) => {
+                const rect = button.getBoundingClientRect();
+                this.buttons.push({
+                    element: button,
+                    x: rect.left + rect.width / 2,
+                    y: rect.top + rect.height / 2,
+                    width: rect.width,
+                    height: rect.height,
+                    vx: (Math.random() - 0.5) * 2,
+                    vy: Math.random() * 2 + 1,
+                    rotation: 0,
+                    rotationSpeed: (Math.random() - 0.5) * 0.1,
+                    broken: false,
+                    breakTime: Math.random() * 1000 + 500
+                });
+                button.classList.add('falling');
+            });
+        }
+        
+        // Hide current page
         if (currentPage) {
             currentPage.style.opacity = '0';
         }
-        
-        // Start with white screen
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
         this.animate();
     }
@@ -137,9 +161,49 @@ class DecayEffect {
         
         const elapsed = Date.now() - this.startTime;
         
-        // PHASE 1: BUILD UP BLACK FROM BOTTOM (0-2 seconds)
-        if (elapsed < this.buildDuration) {
-            const buildProgress = elapsed / this.buildDuration;
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // PHASE 1: BUTTONS FALLING (0-2 seconds)
+        if (elapsed < this.buttonFallDuration) {
+            const progress = elapsed / this.buttonFallDuration;
+            
+            // Animate falling buttons
+            this.buttons.forEach((button) => {
+                if (elapsed > button.breakTime && !button.broken) {
+                    button.broken = true;
+                }
+                
+                if (!button.broken) {
+                    button.y += button.vy * (1 + progress * 2);
+                    button.x += button.vx * (1 + progress);
+                    button.rotation += button.rotationSpeed;
+                    button.vy += 0.3; // Gravity
+                    
+                    // Draw button
+                    this.ctx.save();
+                    this.ctx.translate(button.x, button.y);
+                    this.ctx.rotate(button.rotation);
+                    this.ctx.strokeStyle = '#FFFFFF';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.strokeRect(-button.width / 2, -button.height / 2, button.width, button.height);
+                    this.ctx.restore();
+                }
+            });
+            
+            requestAnimationFrame(() => this.animate());
+        }
+        // PHASE 2: WHITE SCREEN (2-4 seconds)
+        else if (elapsed < this.buttonFallDuration + this.whiteScreenDuration) {
+            // Fill with white
+            this.ctx.fillStyle = '#FFFFFF';
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            
+            requestAnimationFrame(() => this.animate());
+        }
+        // PHASE 3: BUILD UP BLACK FROM BOTTOM (4-6 seconds)
+        else if (elapsed < this.buttonFallDuration + this.whiteScreenDuration + this.buildDuration) {
+            const buildElapsed = elapsed - (this.buttonFallDuration + this.whiteScreenDuration);
+            const buildProgress = buildElapsed / this.buildDuration;
             
             // Fill with white first
             this.ctx.fillStyle = '#FFFFFF';
@@ -168,7 +232,7 @@ class DecayEffect {
             this.ctx.globalAlpha = 1;
             requestAnimationFrame(() => this.animate());
         }
-        // PHASE 2: Complete
+        // PHASE 4: Complete
         else {
             this.completeTransition();
         }
@@ -183,6 +247,14 @@ class DecayEffect {
         if (this.ctx && this.canvas) {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         }
+        
+        // Reset buttons
+        this.buttons.forEach(button => {
+            if (button.element) {
+                button.element.classList.remove('falling');
+            }
+        });
+        this.buttons = [];
         
         // Switch pages
         console.log('Switching to page:', this.targetPage);
