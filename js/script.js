@@ -119,40 +119,15 @@ class DecayEffect {
         this.canvas.style.opacity = '1';
         this.canvas.style.zIndex = '10000';
         
-        // Capture buttons from current page (home page hex buttons or back buttons)
-        const currentPage = document.querySelector('.page.active');
-        if (currentPage) {
-            // Get hex buttons from home page
-            const hexButtons = currentPage.querySelectorAll('.hex-button');
-            // Get back buttons from content pages
-            const backButtons = currentPage.querySelectorAll('.back-button');
-            // Combine both
-            const allButtons = [...hexButtons, ...backButtons];
-            
-            allButtons.forEach((button) => {
-                const rect = button.getBoundingClientRect();
-                this.buttons.push({
-                    element: button,
-                    x: rect.left + rect.width / 2,
-                    y: rect.top + rect.height / 2,
-                    width: rect.width,
-                    height: rect.height,
-                    vx: (Math.random() - 0.5) * 2,
-                    vy: Math.random() * 2 + 1,
-                    rotation: 0,
-                    rotationSpeed: (Math.random() - 0.5) * 0.1,
-                    broken: false,
-                    breakTime: Math.random() * 1000 + 500
-                });
-                button.classList.add('falling');
-            });
-        }
-        
-        // Hide current page
+        // Hide current page immediately
         const currentPage = document.querySelector('.page.active');
         if (currentPage) {
             currentPage.style.opacity = '0';
         }
+        
+        // Start with white screen
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
         this.animate();
     }
@@ -162,65 +137,9 @@ class DecayEffect {
         
         const elapsed = Date.now() - this.startTime;
         
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        
-        // PHASE 1: BUTTONS FALLING (0-2 seconds)
-        if (elapsed < this.buttonFallDuration) {
-            const progress = elapsed / this.buttonFallDuration;
-            
-            // Animate falling buttons
-            this.buttons.forEach((button) => {
-                if (elapsed > button.breakTime && !button.broken) {
-                    button.broken = true;
-                }
-                
-                if (!button.broken) {
-                    button.y += button.vy * (1 + progress * 2);
-                    button.x += button.vx * (1 + progress);
-                    button.rotation += button.rotationSpeed;
-                    button.vy += 0.3; // Gravity
-                    
-                    // Draw button
-                    this.ctx.save();
-                    this.ctx.translate(button.x, button.y);
-                    this.ctx.rotate(button.rotation);
-                    this.ctx.strokeStyle = '#FFFFFF';
-                    this.ctx.lineWidth = 2;
-                    this.ctx.strokeRect(-button.width / 2, -button.height / 2, button.width, button.height);
-                    this.ctx.restore();
-                }
-            });
-            
-            requestAnimationFrame(() => this.animate());
-        }
-        // PHASE 2: FLICKER SEQUENCE (2-3.5 seconds)
-        else if (elapsed < this.buttonFallDuration + this.flickerDuration) {
-            const flickerElapsed = elapsed - this.buttonFallDuration;
-            
-            // Flicker sequence: white → black → white → black → white (stays white)
-            // Timing: 0-300ms white, 300-600ms black, 600-900ms white, 900-1200ms black, 1200ms+ white
-            let isWhite = false;
-            if (flickerElapsed < 300) {
-                isWhite = true;
-            } else if (flickerElapsed < 600) {
-                isWhite = false;
-            } else if (flickerElapsed < 900) {
-                isWhite = true;
-            } else if (flickerElapsed < 1200) {
-                isWhite = false;
-            } else {
-                isWhite = true; // Stay white
-            }
-            
-            this.ctx.fillStyle = isWhite ? '#FFFFFF' : '#000000';
-            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-            
-            requestAnimationFrame(() => this.animate());
-        }
-        // PHASE 3: BUILD UP (3.5-5.5 seconds)
-        else if (elapsed < this.buttonFallDuration + this.flickerDuration + this.buildDuration) {
-            const buildElapsed = elapsed - (this.buttonFallDuration + this.flickerDuration);
-            const buildProgress = buildElapsed / this.buildDuration;
+        // PHASE 1: BUILD UP BLACK FROM BOTTOM (0-2 seconds)
+        if (elapsed < this.buildDuration) {
+            const buildProgress = elapsed / this.buildDuration;
             
             // Fill with white first
             this.ctx.fillStyle = '#FFFFFF';
@@ -249,7 +168,7 @@ class DecayEffect {
             this.ctx.globalAlpha = 1;
             requestAnimationFrame(() => this.animate());
         }
-        // PHASE 4: Complete
+        // PHASE 2: Complete
         else {
             this.completeTransition();
         }
@@ -265,25 +184,9 @@ class DecayEffect {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         }
         
-        // Reset buttons
-        this.buttons.forEach(button => {
-            if (button.element) {
-                button.element.classList.remove('falling');
-            }
-        });
-        this.buttons = [];
-        
         // Switch pages
+        console.log('Switching to page:', this.targetPage);
         switchPage(this.targetPage);
-        
-        // Show new page with fade in
-        const newPage = pages[this.targetPage];
-        if (newPage) {
-            newPage.style.opacity = '0';
-            setTimeout(() => {
-                newPage.style.opacity = '1';
-            }, 50);
-        }
     }
 }
 
@@ -292,10 +195,12 @@ const decayEffect = new DecayEffect();
 // Initialize everything when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     initCanvas();
+    initPages();
     if (canvas && ctx) {
         decayEffect.setCanvas(canvas, ctx);
     }
     setupButtons();
+    switchPage('home');
 });
 
 // Also try immediately if DOM is already loaded
@@ -304,30 +209,41 @@ if (document.readyState === 'loading') {
 } else {
     // DOM is already loaded
     initCanvas();
+    initPages();
     if (canvas && ctx) {
         decayEffect.setCanvas(canvas, ctx);
     }
     setupButtons();
+    switchPage('home');
 }
 
 // Page Management
-const pages = {
-    'home': document.getElementById('home-page'),
-    'about': document.getElementById('about-page'),
-    'resume': document.getElementById('resume-page'),
-    'projects': document.getElementById('projects-page'),
-    'contact': document.getElementById('contact-page')
-};
+let pages = {};
+
+function initPages() {
+    pages = {
+        'home': document.getElementById('home-page'),
+        'about': document.getElementById('about-page'),
+        'resume': document.getElementById('resume-page'),
+        'projects': document.getElementById('projects-page'),
+        'contact': document.getElementById('contact-page')
+    };
+}
 
 function switchPage(pageId) {
     // Hide all pages
     Object.values(pages).forEach(page => {
-        page.classList.remove('active');
+        if (page) {
+            page.classList.remove('active');
+        }
     });
 
     // Show target page
     if (pages[pageId]) {
         pages[pageId].classList.add('active');
+        pages[pageId].style.opacity = '1';
+    } else {
+        console.error('Page not found:', pageId);
     }
 }
 
@@ -387,5 +303,4 @@ document.querySelectorAll('button, input, textarea, a').forEach(el => {
 });
 */
 
-// Initialize - show home page
-switchPage('home');
+// Initialize - show home page (will be called in DOMContentLoaded)
