@@ -87,9 +87,9 @@ class DecayEffect {
         this.isActive = false;
         this.targetPage = null;
         this.startTime = 0;
-        this.buttonFallDuration = 1500; // 1.5 seconds for buttons to fall
-        this.whiteLayerDuration = 800; // 0.8 seconds for white layer sweep
-        this.buildDuration = 1000; // 1 second for rebuild
+        this.buttonFallDuration = 800; // 0.8 seconds for buttons to fall
+        this.whiteLayerDuration = 600; // 0.6 seconds for white layer sweep
+        this.buildDuration = 600; // 0.6 second for rebuild
         this.buttons = [];
         this.canvas = null;
         this.ctx = null;
@@ -321,7 +321,7 @@ function initPages() {
         'home': document.getElementById('home-page'),
         'about': document.getElementById('about-page'),
         'resume': document.getElementById('resume-page'),
-        'projects': document.getElementById('projects-page'),
+        'blog': document.getElementById('blog-page'),
         'contact': document.getElementById('contact-page')
     };
 }
