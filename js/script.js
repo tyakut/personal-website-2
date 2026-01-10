@@ -87,9 +87,9 @@ class DecayEffect {
         this.isActive = false;
         this.targetPage = null;
         this.startTime = 0;
-        this.buttonFallDuration = 2000; // 2 seconds for buttons to fall
-        this.whiteLayerDuration = 1000; // 1 second for white layer sweep
-        this.buildDuration = 2000; // 2 seconds for rebuild
+        this.buttonFallDuration = 1500; // 1.5 seconds for buttons to fall
+        this.whiteLayerDuration = 800; // 0.8 seconds for white layer sweep
+        this.buildDuration = 1000; // 1 second for rebuild
         this.buttons = [];
         this.canvas = null;
         this.ctx = null;

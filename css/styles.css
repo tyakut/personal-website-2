@@ -282,6 +282,58 @@ html, body {
     line-height: 1.8;
 }
 
+/* About Page Layout */
+.about-content {
+    max-width: 1200px;
+    display: flex;
+    gap: 60px;
+    align-items: flex-start;
+}
+
+.about-text {
+    flex: 1;
+}
+
+.about-text p {
+    text-indent: 40px;
+    margin-bottom: 24px;
+}
+
+.about-image {
+    flex: 0 0 350px;
+    position: sticky;
+    top: 60px;
+}
+
+.about-image img {
+    width: 100%;
+    height: auto;
+    border: 2px solid var(--text-white);
+    display: block;
+}
+
+/* Resume Page PDF Display */
+.resume-container {
+    width: 100%;
+    max-width: 900px;
+    height: calc(100vh - 200px);
+    min-height: 600px;
+    border: 2px solid var(--text-white);
+    overflow: hidden;
+}
+
+.resume-pdf {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+/* Hide PDF iframe when resume page is not active to prevent rendering issues */
+.page:not(.active) .resume-pdf {
+    display: none;
+}
+
 .content-block h2 {
     font-size: 24px;
     font-weight: normal;
@@ -405,5 +457,27 @@ html, body {
     
     .content-page h1 {
         font-size: 36px;
+    }
+    
+    .about-content {
+        flex-direction: column;
+        gap: 40px;
+    }
+    
+    .about-image {
+        flex: 0 0 auto;
+        position: static;
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    
+    .about-text p {
+        text-indent: 30px;
+    }
+    
+    .resume-container {
+        height: calc(100vh - 150px);
+        min-height: 500px;
     }
 }
