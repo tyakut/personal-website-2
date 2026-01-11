@@ -321,8 +321,8 @@ function initPages() {
         'home': document.getElementById('home-page'),
         'about': document.getElementById('about-page'),
         'resume': document.getElementById('resume-page'),
-        'blog': document.getElementById('blog-page'),
-        'contact': document.getElementById('contact-page')
+        'writing': document.getElementById('writing-page'),
+        'music': document.getElementById('music-page')
     };
 }
 
@@ -369,22 +369,7 @@ function setupButtons() {
     });
 }
 
-// Contact Form
-const contactForm = document.getElementById('contact-form');
-if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        const name = contactForm.querySelector('input[type="text"]').value;
-        const email = contactForm.querySelector('input[type="email"]').value;
-        const message = contactForm.querySelector('textarea').value;
-        
-        console.log('Form submitted:', { name, email, message });
-        alert('MESSAGE SENT. THANK YOU.');
-        
-        contactForm.reset();
-    });
-}
+// Music page - add any interactive features here if needed
 
 // Prevent default cursor on interactive elements - DISABLED
 /*
