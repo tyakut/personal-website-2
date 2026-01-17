@@ -343,45 +343,87 @@ html, body {
     margin-bottom: 20px;
 }
 
-/* Writing Posts */
-.writing-post {
-    margin-bottom: 50px;
-    padding-bottom: 30px;
-    border-bottom: 1px solid var(--text-white);
-}
-
-.writing-post:last-child {
-    border-bottom: none;
-}
-
-.writing-post-header {
+/* Writing Page Layout */
+.writing-content {
+    max-width: 1200px;
     display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 15px;
-    gap: 20px;
+    gap: 60px;
+    align-items: flex-start;
 }
 
-.writing-post-header h2 {
-    font-size: 24px;
+.writing-posts {
+    flex: 1;
+}
+
+.writing-in-progress {
+    font-size: 18px;
+    color: var(--cursor-brown);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+/* Writing Books Section */
+.writing-books {
+    flex: 0 0 350px;
+    position: sticky;
+    top: 60px;
+}
+
+.books-section {
+    margin-bottom: 40px;
+}
+
+.books-section:last-child {
+    margin-bottom: 0;
+}
+
+.books-section h2 {
+    font-size: 18px;
     font-weight: normal;
     text-transform: uppercase;
     letter-spacing: 2px;
-    margin: 0;
+    margin-bottom: 20px;
+    color: var(--text-white);
 }
 
-.writing-date {
-    font-size: 12px;
-    color: var(--cursor-brown);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    white-space: nowrap;
+.book-item {
+    position: relative;
+    padding-left: 30px;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    border-left: 2px solid var(--text-white);
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-white);
+    transition: all 0.3s ease;
+    cursor: default;
 }
 
-.writing-post p {
-    font-size: 16px;
-    line-height: 1.8;
-    margin: 0;
+.book-item::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 0;
+    width: 10px;
+    height: 10px;
+    background: var(--text-white);
+    border: 2px solid var(--bg-black);
+    transition: all 0.3s ease;
+}
+
+.book-item:hover {
+    border-left-color: var(--cursor-brown);
+    transform: translateX(5px);
+}
+
+.book-item:hover::before {
+    background: var(--cursor-brown);
+    transform: scale(1.3);
+}
+
+.book-item:last-child {
+    margin-bottom: 0;
 }
 
 /* Music Page */
@@ -597,5 +639,16 @@ html, body {
     .resume-container {
         height: calc(100vh - 150px);
         min-height: 500px;
+    }
+    
+    .writing-content {
+        flex-direction: column;
+        gap: 40px;
+    }
+    
+    .writing-books {
+        flex: 0 0 auto;
+        position: static;
+        width: 100%;
     }
 }
