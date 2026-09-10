@@ -296,6 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
         decayEffect.setCanvas(canvas, ctx);
     }
     setupButtons();
+    setupResumeResize();
     switchPage('home');
 });
 
@@ -310,6 +311,7 @@ if (document.readyState === 'loading') {
         decayEffect.setCanvas(canvas, ctx);
     }
     setupButtons();
+    setupResumeResize();
     switchPage('home');
 }
 
@@ -367,6 +369,128 @@ function setupButtons() {
         // Hover effect - don't override transform, let CSS handle it
         // The CSS :hover already handles the box-shadow effect
     });
+}
+
+function setupResumeResize() {
+    const container = document.querySelector('.resume-container');
+    if (!container || container.dataset.resizeReady) return;
+
+    const desktopQuery = window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 769px)');
+    const handles = container.querySelectorAll('.resume-handle');
+    const minWidth = 280;
+    const minHeight = 200;
+    let drag = null;
+    let shield = document.querySelector('.resume-resize-shield');
+
+    if (!shield) {
+        shield = document.createElement('div');
+        shield.className = 'resume-resize-shield';
+        document.body.appendChild(shield);
+    }
+
+    container.dataset.resizeReady = 'true';
+
+    function oppositePoint(corner, rect) {
+        if (corner === 'se') return { x: rect.left, y: rect.top };
+        if (corner === 'sw') return { x: rect.right, y: rect.top };
+        if (corner === 'ne') return { x: rect.left, y: rect.bottom };
+        return { x: rect.right, y: rect.bottom };
+    }
+
+    function viewportBounds() {
+        const pad = 36;
+        return {
+            minX: pad,
+            minY: pad,
+            maxX: window.innerWidth - pad,
+            maxY: window.innerHeight - pad
+        };
+    }
+
+    function clampRect(left, top, width, height) {
+        const { minX, minY, maxX, maxY } = viewportBounds();
+        width = Math.min(Math.max(width, minWidth), Math.max(minWidth, maxX - minX));
+        height = Math.min(Math.max(height, minHeight), Math.max(minHeight, maxY - minY));
+        left = Math.min(Math.max(left, minX), maxX - width);
+        top = Math.min(Math.max(top, minY), maxY - height);
+        return { left, top, width, height };
+    }
+
+    function applyRect(left, top, width, height) {
+        const clamped = clampRect(left, top, width, height);
+        container.style.left = `${clamped.left - drag.originX}px`;
+        container.style.top = `${clamped.top - drag.originY}px`;
+        container.style.width = `${clamped.width}px`;
+        container.style.height = `${clamped.height}px`;
+    }
+
+    function endDrag() {
+        if (!drag) return;
+        drag = null;
+        container.classList.remove('resizing');
+        document.body.classList.remove('resume-resizing');
+        shield.classList.remove('active');
+    }
+
+    function applyDrag(event) {
+        if (!drag) return;
+
+        const { minX, minY, maxX, maxY } = viewportBounds();
+        let x2 = Math.min(Math.max(event.clientX, minX), maxX);
+        let y2 = Math.min(Math.max(event.clientY, minY), maxY);
+        const x1 = drag.opposite.x;
+        const y1 = drag.opposite.y;
+
+        if (drag.corner.includes('e')) {
+            x2 = Math.max(x2, x1 + minWidth);
+        }
+        if (drag.corner.includes('w')) {
+            x2 = Math.min(x2, x1 - minWidth);
+        }
+        if (drag.corner.includes('s')) {
+            y2 = Math.max(y2, y1 + minHeight);
+        }
+        if (drag.corner.includes('n')) {
+            y2 = Math.min(y2, y1 - minHeight);
+        }
+
+        applyRect(Math.min(x1, x2), Math.min(y1, y2), Math.abs(x2 - x1), Math.abs(y2 - y1));
+    }
+
+    handles.forEach((handle) => {
+        handle.addEventListener('pointerdown', (event) => {
+            if (!desktopQuery.matches) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            const rect = container.getBoundingClientRect();
+            const currentLeft = parseFloat(container.style.left) || 0;
+            const currentTop = parseFloat(container.style.top) || 0;
+
+            drag = {
+                corner: handle.dataset.corner,
+                opposite: oppositePoint(handle.dataset.corner, rect),
+                originX: rect.left - currentLeft,
+                originY: rect.top - currentTop
+            };
+
+            container.style.position = 'relative';
+            container.style.maxWidth = 'none';
+            container.style.minWidth = '0';
+            container.style.minHeight = '0';
+            applyRect(rect.left, rect.top, rect.width, rect.height);
+            drag.opposite = oppositePoint(handle.dataset.corner, container.getBoundingClientRect());
+            container.classList.add('resizing');
+            document.body.classList.add('resume-resizing');
+            shield.classList.add('active');
+            shield.style.cursor = window.getComputedStyle(handle).cursor;
+        });
+    });
+
+    window.addEventListener('pointermove', applyDrag);
+    window.addEventListener('pointerup', endDrag);
+    window.addEventListener('pointercancel', endDrag);
 }
 
 // Music page - add any interactive features here if needed

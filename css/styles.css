@@ -313,13 +313,20 @@ html, body {
 }
 
 /* Resume Page PDF Display */
+#resume-page .content-page {
+    overflow: auto;
+}
+
 .resume-container {
+    position: relative;
+    flex: 0 0 auto;
+    align-self: flex-start;
     width: 100%;
     max-width: 900px;
     height: calc(100vh - 200px);
     min-height: 600px;
     border: 2px solid var(--text-white);
-    overflow: hidden;
+    overflow: visible;
 }
 
 .resume-pdf {
@@ -327,6 +334,101 @@ html, body {
     height: 100%;
     border: none;
     display: block;
+}
+
+.resume-handle {
+    display: none;
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    z-index: 6;
+    touch-action: none;
+    outline: none;
+}
+
+.resume-handle::before,
+.resume-handle::after {
+    content: '';
+    position: absolute;
+    background: var(--text-white);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.resume-handle::before {
+    width: 2px;
+    height: 18px;
+}
+
+.resume-handle::after {
+    width: 18px;
+    height: 2px;
+}
+
+.resume-handle:hover::before,
+.resume-handle:hover::after,
+.resume-container.resizing .resume-handle::before,
+.resume-container.resizing .resume-handle::after {
+    background: var(--cursor-brown);
+}
+
+.resume-handle[data-corner="nw"] {
+    top: -28px;
+    left: -28px;
+    cursor: nwse-resize;
+}
+
+.resume-handle[data-corner="ne"] {
+    top: -28px;
+    right: -28px;
+    cursor: nesw-resize;
+}
+
+.resume-handle[data-corner="sw"] {
+    bottom: -28px;
+    left: -28px;
+    cursor: nesw-resize;
+}
+
+.resume-handle[data-corner="se"] {
+    bottom: -28px;
+    right: -28px;
+    cursor: nwse-resize;
+}
+
+.resume-container.resizing {
+    border-color: var(--cursor-brown);
+    user-select: none;
+}
+
+.resume-container.resizing .resume-pdf {
+    pointer-events: none;
+}
+
+.resume-resize-shield {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10002;
+}
+
+.resume-resize-shield.active {
+    display: block;
+}
+
+body.resume-resizing {
+    user-select: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .resume-handle {
+        display: block;
+    }
 }
 
 /* Hide PDF iframe when resume page is not active to prevent rendering issues */
@@ -639,6 +741,10 @@ html, body {
     .resume-container {
         height: calc(100vh - 150px);
         min-height: 500px;
+    }
+
+    .resume-handle {
+        display: none !important;
     }
     
     .writing-content {
