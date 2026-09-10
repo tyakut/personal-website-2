@@ -297,6 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     setupButtons();
     setupResumeResize();
+    setupHomeNote();
     switchPage('home');
 });
 
@@ -312,6 +313,7 @@ if (document.readyState === 'loading') {
     }
     setupButtons();
     setupResumeResize();
+    setupHomeNote();
     switchPage('home');
 }
 
@@ -368,6 +370,22 @@ function setupButtons() {
 
         // Hover effect - don't override transform, let CSS handle it
         // The CSS :hover already handles the box-shadow effect
+    });
+}
+
+function setupHomeNote() {
+    const note = document.querySelector('.home-note');
+    if (!note || note.dataset.wavy) return;
+
+    const text = note.textContent;
+    note.textContent = '';
+    note.dataset.wavy = 'true';
+
+    [...text].forEach((character, index) => {
+        const letter = document.createElement('span');
+        letter.textContent = character === ' ' ? '\u00A0' : character;
+        letter.style.setProperty('--i', index);
+        note.appendChild(letter);
     });
 }
 

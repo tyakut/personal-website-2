@@ -156,6 +156,43 @@ html, body {
     transform: translate(-50%, -50%);
 }
 
+.home-note {
+    position: absolute;
+    bottom: 24px;
+    left: 28px;
+    margin: 0;
+    color: var(--cursor-brown);
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    font-style: italic;
+    letter-spacing: 0.5px;
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.home-note span {
+    display: inline-block;
+    animation: home-note-wave 2.4s ease-in-out infinite;
+    animation-delay: calc(var(--i) * 0.1s);
+}
+
+@keyframes home-note-wave {
+    0%, 100% {
+        transform: translateY(3px);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .home-note span {
+        animation: none;
+        transform: translateY(calc(sin(var(--i) * 0.7rad) * 4px));
+    }
+}
+
 /* Hexagonal Button Layout */
 .hex-button {
     background: transparent;
