@@ -352,29 +352,38 @@ function initPages() {
 
 function pageUrl(pageId) {
     if (pageId === 'home') {
-        return `${window.location.pathname}${window.location.search}`;
+        return window.location.pathname;
     }
-    return `#${pageId}`;
+    return `${window.location.pathname}?p=${encodeURIComponent(pageId)}`;
 }
 
 function pageFromLocation() {
-    if (history.state && history.state.page && pages[history.state.page]) {
-        return history.state.page;
+    const params = new URLSearchParams(window.location.search);
+    const fromQuery = params.get('p');
+    if (fromQuery && pages[fromQuery]) {
+        return fromQuery;
     }
+
     const hash = window.location.hash.replace(/^#/, '');
     if (hash && pages[hash]) {
         return hash;
     }
+
+    if (history.state && history.state.page && pages[history.state.page]) {
+        return history.state.page;
+    }
+
     return 'home';
 }
 
 function pushPageHistory(pageId) {
     if (!pages[pageId]) return;
-    const current = history.state && history.state.page;
-    if (current === pageId && (pageId === 'home' ? !window.location.hash : window.location.hash === `#${pageId}`)) {
+    const nextUrl = pageUrl(pageId);
+    const currentUrl = `${window.location.pathname}${window.location.search}`;
+    if (history.state && history.state.page === pageId && currentUrl === nextUrl) {
         return;
     }
-    history.pushState({ page: pageId }, '', pageUrl(pageId));
+    history.pushState({ page: pageId }, '', nextUrl);
 }
 
 function setupHistory() {
