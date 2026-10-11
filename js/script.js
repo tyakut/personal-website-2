@@ -93,6 +93,7 @@ class DecayEffect {
         this.buttons = [];
         this.canvas = null;
         this.ctx = null;
+        this.recordHistory = true;
     }
     
     setCanvas(canvasElement, ctxElement) {
@@ -100,8 +101,9 @@ class DecayEffect {
         this.ctx = ctxElement;
     }
 
-    startDecay(targetPage) {
+    startDecay(targetPage, recordHistory = true) {
         if (this.isActive) return;
+        this.recordHistory = recordHistory;
         
         // Make sure canvas is initialized
         if (!this.canvas || !this.ctx) {
@@ -126,8 +128,9 @@ class DecayEffect {
             const hexButtons = currentPage.querySelectorAll('.hex-button');
             // Get back buttons from content pages
             const backButtons = currentPage.querySelectorAll('.back-button');
+            const writingLinks = currentPage.querySelectorAll('.writing-post-link');
             // Combine both
-            const allButtons = [...hexButtons, ...backButtons];
+            const allButtons = [...hexButtons, ...backButtons, ...writingLinks];
             
             allButtons.forEach((button) => {
                 const rect = button.getBoundingClientRect();
@@ -258,6 +261,7 @@ class DecayEffect {
         }
         // PHASE 4: Complete
         else {
+            if (!this.isActive) return;
             this.completeTransition();
         }
     }
@@ -281,15 +285,39 @@ class DecayEffect {
         this.buttons = [];
         
         // Switch pages
-        console.log('Switching to page:', this.targetPage);
         switchPage(this.targetPage);
+        if (this.recordHistory) {
+            pushPageHistory(this.targetPage);
+        }
+    }
+
+    abort() {
+        if (!this.isActive) return;
+        this.isActive = false;
+        this.recordHistory = false;
+        if (this.canvas) {
+            this.canvas.style.opacity = '0';
+            this.canvas.style.zIndex = '9999';
+        }
+        if (this.ctx && this.canvas) {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+        this.buttons.forEach((button) => {
+            if (button.element) {
+                button.element.classList.remove('falling');
+            }
+        });
+        this.buttons = [];
     }
 }
 
 const decayEffect = new DecayEffect();
+let siteReady = false;
 
-// Initialize everything when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
+function initSite() {
+    if (siteReady) return;
+    siteReady = true;
+
     initCanvas();
     initPages();
     if (canvas && ctx) {
@@ -298,23 +326,13 @@ document.addEventListener('DOMContentLoaded', () => {
     setupButtons();
     setupResumeResize();
     setupHomeNote();
-    switchPage('home');
-});
+    setupHistory();
+}
 
-// Also try immediately if DOM is already loaded
-if (document.readyState === 'loading') {
-    // DOM is still loading, wait for DOMContentLoaded
-} else {
-    // DOM is already loaded
-    initCanvas();
-    initPages();
-    if (canvas && ctx) {
-        decayEffect.setCanvas(canvas, ctx);
-    }
-    setupButtons();
-    setupResumeResize();
-    setupHomeNote();
-    switchPage('home');
+document.addEventListener('DOMContentLoaded', initSite);
+
+if (document.readyState !== 'loading') {
+    initSite();
 }
 
 // Page Management
@@ -326,8 +344,48 @@ function initPages() {
         'about': document.getElementById('about-page'),
         'resume': document.getElementById('resume-page'),
         'writing': document.getElementById('writing-page'),
+        'writing-any-answer': document.getElementById('writing-any-answer-page'),
+        'writing-automating-science': document.getElementById('writing-automating-science-page'),
         'music': document.getElementById('music-page')
     };
+}
+
+function pageUrl(pageId) {
+    if (pageId === 'home') {
+        return `${window.location.pathname}${window.location.search}`;
+    }
+    return `#${pageId}`;
+}
+
+function pageFromLocation() {
+    if (history.state && history.state.page && pages[history.state.page]) {
+        return history.state.page;
+    }
+    const hash = window.location.hash.replace(/^#/, '');
+    if (hash && pages[hash]) {
+        return hash;
+    }
+    return 'home';
+}
+
+function pushPageHistory(pageId) {
+    if (!pages[pageId]) return;
+    const current = history.state && history.state.page;
+    if (current === pageId && (pageId === 'home' ? !window.location.hash : window.location.hash === `#${pageId}`)) {
+        return;
+    }
+    history.pushState({ page: pageId }, '', pageUrl(pageId));
+}
+
+function setupHistory() {
+    const initial = pageFromLocation();
+    history.replaceState({ page: initial }, '', pageUrl(initial));
+    switchPage(initial);
+
+    window.addEventListener('popstate', () => {
+        decayEffect.abort();
+        switchPage(pageFromLocation());
+    });
 }
 
 function switchPage(pageId) {
@@ -335,6 +393,7 @@ function switchPage(pageId) {
     Object.values(pages).forEach(page => {
         if (page) {
             page.classList.remove('active');
+            page.style.opacity = '';
         }
     });
 
@@ -349,7 +408,7 @@ function switchPage(pageId) {
 
 // Navigation Buttons
 function setupButtons() {
-    document.querySelectorAll('.hex-button, .back-button').forEach(button => {
+    document.querySelectorAll('.hex-button, .back-button, .writing-post-link').forEach(button => {
         button.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
