@@ -222,7 +222,22 @@
         </div>
     </div>
 
-    <script src="js/script.js?v=20261011d"></script>
+    <script>
+        (function () {
+            var pageId = new URLSearchParams(window.location.search).get('p');
+            if (!pageId && window.location.hash) {
+                pageId = window.location.hash.replace(/^#/, '');
+            }
+            if (!pageId) return;
+            var target = document.getElementById(pageId + '-page') || document.getElementById(pageId);
+            var home = document.getElementById('home-page');
+            if (!target || !home) return;
+            home.classList.remove('active');
+            target.classList.add('active');
+            target.style.opacity = '1';
+        })();
+    </script>
+    <script src="js/script.js?v=20261011e"></script>
     <script src="js/jello.js?v=20260911b" defer></script>
 </body>
 </html>

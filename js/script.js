@@ -312,7 +312,20 @@ class DecayEffect {
 }
 
 const decayEffect = new DecayEffect();
+let pages = {};
 let siteReady = false;
+
+function initPages() {
+    pages = {
+        'home': document.getElementById('home-page'),
+        'about': document.getElementById('about-page'),
+        'resume': document.getElementById('resume-page'),
+        'writing': document.getElementById('writing-page'),
+        'writing-any-answer': document.getElementById('writing-any-answer-page'),
+        'writing-automating-science': document.getElementById('writing-automating-science-page'),
+        'music': document.getElementById('music-page')
+    };
+}
 
 function initSite() {
     if (siteReady) return;
@@ -329,25 +342,10 @@ function initSite() {
     setupHistory();
 }
 
-document.addEventListener('DOMContentLoaded', initSite);
-
-if (document.readyState !== 'loading') {
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSite);
+} else {
     initSite();
-}
-
-// Page Management
-let pages = {};
-
-function initPages() {
-    pages = {
-        'home': document.getElementById('home-page'),
-        'about': document.getElementById('about-page'),
-        'resume': document.getElementById('resume-page'),
-        'writing': document.getElementById('writing-page'),
-        'writing-any-answer': document.getElementById('writing-any-answer-page'),
-        'writing-automating-science': document.getElementById('writing-automating-science-page'),
-        'music': document.getElementById('music-page')
-    };
 }
 
 function pageUrl(pageId) {
@@ -357,20 +355,22 @@ function pageUrl(pageId) {
     return `${window.location.pathname}?p=${encodeURIComponent(pageId)}`;
 }
 
+function pageExists(pageId) {
+    if (!pageId) return false;
+    if (pages[pageId]) return true;
+    return Boolean(document.getElementById(`${pageId}-page`) || document.getElementById(pageId));
+}
+
 function pageFromLocation() {
     const params = new URLSearchParams(window.location.search);
     const fromQuery = params.get('p');
-    if (fromQuery && pages[fromQuery]) {
+    if (pageExists(fromQuery)) {
         return fromQuery;
     }
 
     const hash = window.location.hash.replace(/^#/, '');
-    if (hash && pages[hash]) {
+    if (pageExists(hash)) {
         return hash;
-    }
-
-    if (history.state && history.state.page && pages[history.state.page]) {
-        return history.state.page;
     }
 
     return 'home';
@@ -398,7 +398,10 @@ function setupHistory() {
 }
 
 function switchPage(pageId) {
-    // Hide all pages
+    if (!pages[pageId]) {
+        initPages();
+    }
+
     Object.values(pages).forEach(page => {
         if (page) {
             page.classList.remove('active');
@@ -406,10 +409,11 @@ function switchPage(pageId) {
         }
     });
 
-    // Show target page
-    if (pages[pageId]) {
-        pages[pageId].classList.add('active');
-        pages[pageId].style.opacity = '1';
+    const page = pages[pageId] || document.getElementById(`${pageId}-page`) || document.getElementById(pageId);
+    if (page) {
+        pages[pageId] = page;
+        page.classList.add('active');
+        page.style.opacity = '1';
     } else {
         console.error('Page not found:', pageId);
     }
